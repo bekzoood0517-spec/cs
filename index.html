@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#05070a">
+<title>WEB STRIKE 3D — ARSENAL & SKINS</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+</head>
+<body>
+<div id="game-container">
+  <canvas id="game"></canvas>
+
+  <div id="rotate-hint">
+    <div class="rotate-icon">📱</div>
+    <div class="rotate-text">ПОВЕРНИТЕ ТЕЛЕФОН ГОРИЗОНТАЛЬНО</div>
+  </div>
+
+  <div id="hud">
+    <div class="hud-block">
+      <div class="hud-row">
+        <span class="hud-label">HP</span>
+        <span id="hp-value" class="hud-value">100</span>
+      </div>
+      <div class="bar"><div id="hp-bar" class="bar-fill"></div></div>
+      <div class="hud-row">
+        <span class="hud-label">ПАТРОНЫ</span>
+        <span id="ammo-value" class="hud-value">30 / 90</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-label">ГРАНАТЫ</span>
+        <span id="grenade-value" class="hud-value">0</span>
+      </div>
+    </div>
+
+    <div class="hud-weapon">
+      <span id="weapon-name">НОЖ</span>
+      <span id="skin-name-hud">СТАНДАРТ</span>
+      <span id="map-name-hud">DUST</span>
+    </div>
+
+    <div class="hud-block hud-right">
+      <div class="hud-row">
+        <span class="hud-label">$</span>
+        <span id="money-value" class="hud-value money">800</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-label">ОЧКИ</span>
+        <span id="score-value" class="hud-value score">0</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-label">ВОЛНА</span>
+        <span id="wave-value" class="hud-value">1</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="mp-scoreboard" class="hidden">
+    <div class="sb-team sb-team-0">
+      <div class="sb-team-title">ЗЕЛЁНЫЕ</div>
+      <div class="sb-players" id="sb-players-0"></div>
+    </div>
+    <div class="sb-center">
+      <div class="sb-scores">
+        <div class="sb-score sb-score-0" id="sb-score-0">0</div>
+        <div class="sb-vs">:</div>
+        <div class="sb-score sb-score-1" id="sb-score-1">0</div>
+      </div>
+      <div class="sb-limit" id="sb-limit">ДО 15</div>
+    </div>
+    <div class="sb-team sb-team-1">
+      <div class="sb-team-title">КРАСНЫЕ</div>
+      <div class="sb-players" id="sb-players-1"></div>
+    </div>
+  </div>
+
+  <div id="crosshair">
+    <span class="ch-top"></span>
+    <span class="ch-bottom"></span>
+    <span class="ch-left"></span>
+    <span class="ch-right"></span>
+    <span class="ch-dot"></span>
+  </div>
+
+  <div id="hitmarker"></div>
+  <div id="reload-indicator">ПЕРЕЗАРЯДКА...</div>
+  <div id="announce"></div>
+
+  <div id="scope-overlay">
+    <div class="scope-circle"></div>
+    <div class="scope-cross-h"></div>
+    <div class="scope-cross-v"></div>
+  </div>
+
+  <div id="mobile-controls">
+    <div id="joystick-zone">
+      <div id="joystick-base">
+        <div id="joystick-knob"></div>
+      </div>
+    </div>
+    <button id="btn-fire-mobile"    class="touch-btn fire-btn"    aria-label="Огонь">🔥</button>
+    <button id="btn-reload-mobile"  class="touch-btn reload-btn"  aria-label="Перезарядка">R</button>
+    <button id="btn-scope-mobile"   class="touch-btn scope-btn"   aria-label="Прицел">◎</button>
+    <button id="btn-grenade-mobile" class="touch-btn grenade-btn" aria-label="Граната">💣</button>
+    <button id="btn-jump-mobile"    class="touch-btn jump-btn"    aria-label="Прыжок">⤒</button>
+    <button id="btn-crouch-mobile"  class="touch-btn crouch-btn"  aria-label="Присесть">⤓</button>
+    <button id="btn-pause-mobile"   class="touch-btn pause-btn"   aria-label="Пауза">❚❚</button>
+    <div id="weapon-slots"></div>
+  </div>
+
+  <div id="menu-start" class="overlay">
+    <div class="panel">
+      <h1>WEB STRIKE 3D</h1>
+      <p class="subtitle">Арсенал • Скины • Кейсы</p>
+      <div class="mode-section">
+        <h3>РЕЖИМ ИГРЫ</h3>
+        <div id="mode-list">
+          <button class="mode-btn selected" data-mode="single">
+            <div class="mode-icon">👤</div>
+            <div class="mode-title">ОДИНОЧНАЯ</div>
+            <div class="mode-desc">Волны врагов</div>
+          </button>
+          <button class="mode-btn" data-mode="1v1">
+            <div class="mode-icon">⚔️</div>
+            <div class="mode-title">1 НА 1</div>
+            <div class="mode-desc">По WiFi</div>
+          </button>
+          <button class="mode-btn" data-mode="2v2">
+            <div class="mode-icon">👥</div>
+            <div class="mode-title">2 НА 2</div>
+            <div class="mode-desc">По WiFi</div>
+          </button>
+        </div>
+      </div>
+      <div class="map-section">
+        <h3>КАРТА</h3>
+        <div id="map-list"></div>
+      </div>
+      <button id="btn-open-shop" class="btn secondary">🛒 АРСЕНАЛ [B]</button>
+      <button id="btn-start" class="btn">НАЧАТЬ ИГРУ</button>
+      <div class="records">
+        <h3>ЛУЧШИЕ РЕЗУЛЬТАТЫ</h3>
+        <ol id="records-list-start" class="records-list"></ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Магазин/Инвентарь -->
+  <div id="menu-shop" class="overlay hidden">
+    <div class="panel panel-shop">
+      <h1>🛒 АРСЕНАЛ</h1>
+      <div class="shop-money">
+        <span class="shop-money-label">БАЛАНС</span>
+        <span id="shop-money-value" class="shop-money-value">$800</span>
+      </div>
+      <div id="shop-categories">
+        <button class="shop-cat selected" data-cat="melee">🔪 НОЖИ</button>
+        <button class="shop-cat" data-cat="pistol">🔫 ПИСТОЛЕТЫ</button>
+        <button class="shop-cat" data-cat="smg">💥 SMG</button>
+        <button class="shop-cat" data-cat="rifle">🎯 ВИНТОВКИ</button>
+        <button class="shop-cat" data-cat="sniper">🔭 СНАЙПЕРКИ</button>
+        <button class="shop-cat" data-cat="shotgun">🔥 ДРОБОВИКИ</button>
+        <button class="shop-cat" data-cat="grenade">💣 ГРАНАТЫ</button>
+        <button class="shop-cat" data-cat="skins">🎨 СКИНЫ</button>
+        <button class="shop-cat" data-cat="cases">📦 КЕЙСЫ</button>
+      </div>
+      <div id="shop-items"></div>
+      <button id="btn-shop-close" class="btn">ЗАКРЫТЬ [B]</button>
+    </div>
+  </div>
+
+  <!-- Открытие кейса -->
+  <div id="menu-case" class="overlay hidden">
+    <div class="panel panel-case">
+      <h1 id="case-title">ОТКРЫТИЕ КЕЙСА</h1>
+      <div id="case-reel-wrap">
+        <div id="case-reel-marker"></div>
+        <div id="case-reel"></div>
+      </div>
+      <div id="case-result" class="hidden">
+        <div class="case-result-label">ВЫ ПОЛУЧИЛИ</div>
+        <div id="case-result-item" class="case-result-item"></div>
+      </div>
+      <button id="btn-case-open" class="btn">ОТКРЫТЬ — <span id="case-open-price">$1000</span></button>
+      <button id="btn-case-close" class="btn secondary">ЗАКРЫТЬ</button>
+    </div>
+  </div>
+
+  <div id="menu-mp" class="overlay hidden">
+    <div class="panel">
+      <h1>СЕТЕВАЯ ИГРА</h1>
+      <p class="subtitle" id="mp-mode-title">1 НА 1</p>
+      <div id="mp-step-choose">
+        <p class="mp-info">Один игрок создаёт игру, остальные подключаются по ID.</p>
+        <button id="btn-mp-host" class="btn">СОЗДАТЬ ИГРУ</button>
+        <button id="btn-mp-join" class="btn secondary">ПОДКЛЮЧИТЬСЯ</button>
+        <button id="btn-mp-back" class="btn secondary">НАЗАД</button>
+      </div>
+      <div id="mp-step-host" class="hidden">
+        <p class="mp-label">ID игры:</p>
+        <div id="mp-host-id" class="mp-code">...</div>
+        <button id="btn-copy-id" class="btn secondary">📋 КОПИРОВАТЬ ID</button>
+        <div class="mp-players-box">
+          <div class="mp-players-title">ИГРОКИ <span id="mp-host-count">1 / 2</span></div>
+          <div id="mp-host-players" class="mp-players-list"></div>
+        </div>
+        <p id="mp-host-info" class="mp-info">Ожидание подключений...</p>
+        <button id="btn-mp-start" class="btn" disabled>НАЧАТЬ ИГРУ</button>
+        <button id="btn-mp-cancel" class="btn secondary">ОТМЕНА</button>
+      </div>
+      <div id="mp-step-join" class="hidden">
+        <p class="mp-label">Введите ID игры хоста:</p>
+        <input id="mp-join-input" type="text" class="mp-input" placeholder="XXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <button id="btn-mp-connect" class="btn">ПОДКЛЮЧИТЬСЯ</button>
+        <p id="mp-join-info" class="mp-info"></p>
+        <button id="btn-mp-join-cancel" class="btn secondary">ОТМЕНА</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="menu-pause" class="overlay hidden">
+    <div class="panel">
+      <h1>ПАУЗА</h1>
+      <button id="btn-shop-pause" class="btn">🛒 АРСЕНАЛ</button>
+      <button id="btn-resume" class="btn">ПРОДОЛЖИТЬ</button>
+      <button id="btn-restart" class="btn secondary">НАЧАТЬ ЗАНОВО</button>
+      <button id="btn-menu" class="btn secondary">В ГЛАВНОЕ МЕНЮ</button>
+    </div>
+  </div>
+
+  <div id="menu-over" class="overlay hidden">
+    <div class="panel">
+      <h1 class="danger" id="over-title">ИГРА ОКОНЧЕНА</h1>
+      <div class="result">
+        <div class="result-item">
+          <span class="result-label" id="over-label-1">ОЧКИ</span>
+          <span id="final-score" class="result-value">0</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label" id="over-label-2">ВОЛНА</span>
+          <span id="final-wave" class="result-value">1</span>
+        </div>
+      </div>
+      <div class="result-money">ЗАРАБОТАНО: <span id="final-money">$0</span></div>
+      <button id="btn-again" class="btn">ИГРАТЬ СНОВА</button>
+      <button id="btn-menu-over" class="btn secondary">В ГЛАВНОЕ МЕНЮ</button>
+      <div class="records">
+        <h3>ЛУЧШИЕ РЕЗУЛЬТАТЫ</h3>
+        <ol id="records-list-over" class="records-list"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
